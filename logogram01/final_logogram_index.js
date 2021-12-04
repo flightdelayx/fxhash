@@ -33,9 +33,11 @@ if (darkMode) {
   getColorMode = "normal"
 }
 
-const printStyle = fxrand() < 0.5
+let printStyle = fxrand() < 0.5
 let getPrintStyle
-if (printStyle) {
+if (babelMode) {
+  getPrintStyle = "babelMode"
+} else if (printStyle) {
   getPrintStyle = "sublimated" //60% sublimated
 } else {
   getPrintStyle = "engraved" //40% engraved
@@ -44,7 +46,9 @@ if (printStyle) {
 const dotMixes = [0,0,0,1,1,2,2,2,2,2,2,2,2] //dot vs line settings: 0 = all dot, 1 = mix dot-line, 2 = all line
 let dotMix = dotMixes[Math.floor(fxrand() * dotMixes.length)]
 let getDotMix
-if (dotMix == 0) {
+if (babelMode) {
+  getDotMix = "babelMode"
+} else if (dotMix == 0) {
   getDotMix = "dot" //23% dot
 } else if (dotMix == 1) {
   getDotMix = "dot-line mix" //15% dot-line mix
@@ -52,30 +56,74 @@ if (dotMix == 0) {
   getDotMix = "line" //62% line
 }
 
-console.log(getDotMix)
-
-
-const letterGridSizes = ["small", "medium", "large"] //33% each
-const letterGridSize = letterGridSizes[Math.floor(fxrand() * letterGridSizes.length)]
 
 const offsets = [0,1,1]
 let offset = offsets[Math.floor(fxrand() * offsets.length)] //0 = fully square grid, 1 = offset/diagonal + square grids. more likely chance of offset //< 0.33 //
 let getOffset 
-if (offset) {
+if (babelMode) {
+  getOffset = "babelMode"
+} else if (offset) {
   getOffset = "offset" //66% offset
 } else {
   getOffset = "square" //33% square
 } 
 
+//not setting this as a feature after all
+const letterGridSizes = ["small", "medium", "large"] //33% each //grid for the letter to be drawn on variable that can be changed. small medium large
+let letterGridSize = letterGridSizes[Math.floor(fxrand() * letterGridSizes.length)]    
+let ltrGridSize 
+if (letterGridSize == "small") {
+  ltrGridSize = 6
+} else if (letterGridSize == "medium") {
+  ltrGridSize = 10
+} else {
+  ltrGridSize = 12
+}
 
-console.log(offset)
-console.log(getOffset)
+let totBox = ltrGridSize*ltrGridSize; //total number of squares in grid for a single letter; don't change
 
-// window.$fxhashFeatures = {
-//   "Background": "Black",
-//   "Number of lines": 10,
-//   "Inverted": true
-// }
+const sgmtSizeAry = [5000,10000,15000,18000]
+let sgmtSizeChoice = sgmtSizeAry[Math.floor(fxrand() * sgmtSizeAry.length)]
+let sgmt = Math.floor(Math.sqrt(sgmtSizeChoice/totBox)) //number of segments
+if (sgmt%2 == 0) {sgmt++} //ensure odd number of columns for better column offset display
+
+let getSgmt
+if (babelMode) {
+  getSgmt = "babelMode"
+} else {
+  getSgmt = sgmt
+}
+
+let squigOpt = fxrand() //use to choose squiggliness of 0, 2, 7, 15. 
+let samDirWt
+let getSquig
+if (squigOpt < 0.04) { //4% chance of supersquiggle
+  samDirWt = 0
+  getSquig = "superSquiggly"
+} else if (squigOpt < 0.36) {
+  samDirWt = 2
+  getSquig = "squiggly"
+} else if (squigOpt < 0.68) {
+  samDirWt = 7
+  getSquig = "straighter"
+} else {
+  samDirWt = 15
+  getSquig = "straightest"
+}
+//set the feature setting to Babel if so
+if (babelMode) {
+  getSquig = "babelMode"
+}
+
+window.$fxhashFeatures = {
+"color mode": getColorMode,
+"print stlye": getPrintStyle,
+"stroke form": getDotMix,
+"stroke orientation": getSquig,
+"grid style": getOffset,
+"segments": getSgmt
+
+}
 
 let sketch = function(p5) {
 
@@ -87,7 +135,7 @@ let sketch = function(p5) {
   let colAry = p5.concat(p5.concat(colAryall1,colAryall2),colAryall3)
 
   let locRow, locCol, loc, points, newPtx, newPty, totalPts, p, q, w, boxSize, lastDir, newDir, newLocLastDir
-  let sqColor, dotMixRan, sgmt, bgColPos, bgCol, bgWidth, pos
+  let sqColor, dotMixRan, bgColPos, bgCol, bgWidth, pos
 
   //+1 = FEATURE - needs setup
   //let babelMode = fxrand() //Babelmode = overlaying multiple logographies. 15%?
@@ -117,13 +165,48 @@ let sketch = function(p5) {
 
   p5.draw = function() {
 
-    let babelOffset = [0,1,1]
+    let ltrPtAry = [0.3,0.5,0.7] //how many possible squares can be filled. *0.2 should be minimum; 0.3 - 0.6 seems like good range. max 0.8?. stroke length
+    let ltrPts = Math.floor(totBox * (ltrPtAry[Math.floor(fxrand() * ltrPtAry.length)])) //how many possible squares can be filled. *0.2 should be minimum; 0.3 - 0.6 seems like good range. max 0.8?. stroke length
     
-    if (babelMode) {
-      offset = babelOffset[Math.floor(fxrand() * babelOffset.length)]
+    if (babelMode) { //in babelMode reset the probability of features
+      printStyle = fxrand() < 0.5
+      if (printStyle) {
+        getPrintStyle = "sublimated" //60% sublimated
+      } else {
+        getPrintStyle = "engraved" //40% engraved
+      }
+
+      ltrPts = Math.floor(totBox * (ltrPtAry[Math.floor(fxrand() * ltrPtAry.length)]))
+
+      offset = offsets[Math.floor(fxrand() * offsets.length)]
       dotMix = dotMixes[Math.floor(fxrand() * dotMixes.length)]
+
+      letterGridSize = letterGridSizes[Math.floor(fxrand() * letterGridSizes.length)]  
+      if (letterGridSize == "small") {
+        ltrGridSize = 6
+      } else if (letterGridSize == "medium") {
+        ltrGridSize = 10
+      } else {
+        ltrGridSize = 12
+      }
+
+      totBox = ltrGridSize*ltrGridSize;
+
+      sgmtSizeChoice = sgmtSizeAry[Math.floor(fxrand() * sgmtSizeAry.length)]
+      sgmt = Math.floor(Math.sqrt(sgmtSizeChoice/totBox)) //number of segments
+      if (sgmt%2 == 0) {sgmt++} //ensure odd number of columns for better column offset display
+
+      squigOpt = fxrand() //use to choose squiggliness of 0, 2, 7, 15. 
+      if (squigOpt < 0.04) { //4% chance of supersquiggle
+        samDirWt = 0
+      } else if (squigOpt < 0.36) {
+        samDirWt = 2
+      } else if (squigOpt < 0.68) {
+        samDirWt = 7
+      } else {
+        samDirWt = 15
+      }
     }
-    console.log("offset:" + offset)
 
     let pos, posx1, posy1, posx2, posy2
     
@@ -132,32 +215,10 @@ let sketch = function(p5) {
     p5.translate(p5.width / 2, p5.height /2);
     p5.scale(0.9);
     p5.translate(-p5.width / 2, -p5.height / 2);
-    
-    /*setup initial parameters; randomize these in final version*/
-    //+1 = FEATURE - needs different settings
-    let ltrGridSize 
-    if (letterGridSize == "small") {
-      ltrGridSize = 6
-    } else if (letterGridSize == "medium") {
-      ltrGridSize = 10
-    } else {
-      ltrGridSize = 12
-    }
-    //p5.random([6,10,12]); //grid for the letter to be drawn on variable that can be changed. small medium large
-    let totBox = ltrGridSize*ltrGridSize; //total number of squares in grid for a single letter; don't change
-    //+1 = FEATURE - needs different settings
-    sgmt = p5.floor(p5.sqrt(p5.random([5000,10000,15000,18000])/(totBox))) //number of segments; relative to ltrGridSize. Small Medium Large XL
-    if (sgmt%2 == 0) {sgmt++} //ensure odd number of columns for better column offset display
-    let ltrPts = p5.floor(totBox * p5.random([0.3,0.5,0.7])); //how many possible squares can be filled. *0.2 should be minimum; 0.3 - 0.6 seems like good range. max 0.8?. stroke length
-    //+1 = FEATURE - needs different settings
-    let samDirWt = p5.random([2,7,15]); //higher number = straighter lines; lower = squigglier; rec min 2 max 15(?); squiggliness: high medium low
-    let crossEdges = p5.random([0,1]); //1 or 0: if = 1, letter drawing can cross from right/left edge and vice versa, creating disconnected shapes
+
+    let crossEdges = Math.floor(fxrand() * 2) //1 or 0: if = 1, letter drawing can cross from right/left edge and vice versa, creating disconnected shapes
+    //let crossEdges = p5.random([0,1]); //1 or 0: if = 1, letter drawing can cross from right/left edge and vice versa, creating disconnected shapes
     let lastDir = p5.random([0,1,2,3]); //initial setting of the last direction; 0=left, 1=right, 2=up, 3=down; works with samDirWt, likelihood of direction of writing
-    
-    console.log("ltrGridSize: " + ltrGridSize)
-    console.log("sgmt: " + sgmt)
-    console.log("samDirWt: " + samDirWt)
-    console.log("ltrPts: " + ltrPts)
     
     let w = bgWidth / sgmt //width of a given box
     
@@ -170,8 +231,6 @@ let sketch = function(p5) {
     } else {
       sublimate = 0
     }
-    //let emboss = p5.floor(fxrand()*2) //0 = engrave, 1 = emboss. 60/40 instead?
-    console.log("printStyle: " + getPrintStyle)
     
     for(let i=0; i<sgmt; i++){ 
       
