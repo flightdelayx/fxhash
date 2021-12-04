@@ -6,7 +6,7 @@ import p5 from "p5";
 
 // note about the fxrand() function 
 // when the "fxhash" is always the same, it will generate the same sequence of
-// pseudo random numbers, always
+// pseudo rand numbers, always
 
 //----------------------
 // defining features
@@ -115,11 +115,21 @@ if (babelMode) {
   getSquig = "babelMode"
 }
 
+let ltrPtAry = [0.3,0.5,0.7] //how many possible squares can be filled. *0.2 should be minimum; 0.3 - 0.6 seems like good range. max 0.8?. stroke length
+let ltrPts = Math.floor(totBox * (ltrPtAry[Math.floor(fxrand() * ltrPtAry.length)])) //how many possible squares can be filled. *0.2 should be minimum; 0.3 - 0.6 seems like good range. max 0.8?. stroke length
+let getLtrPts
+if (babelMode) {
+  getLtrPts = "babelMode"
+} else {
+  getLtrPts = ltrPts
+}
+
 window.$fxhashFeatures = {
 "color mode": getColorMode,
-"print stlye": getPrintStyle,
-"stroke form": getDotMix,
-"stroke orientation": getSquig,
+"print style": getPrintStyle,
+"character form": getDotMix,
+"character style": getSquig,
+"character length": getLtrPts,
 "grid style": getOffset,
 "segments": getSgmt
 
@@ -150,11 +160,13 @@ let sketch = function(p5) {
     if (darkMode) { //15% chance of darkmode
       bgColPos = (colAry.length-1); //#222222 is last color in the array
     } else {
-      bgColPos = p5.int(p5.random(colAry.length-1));
+      bgColPos = Math.floor(fxrand() * colAry.length);
     }
     bgCol = colAry[bgColPos];
     colAry.splice(bgColPos,1); //remove background color from color array used for letters
     
+    p5.noiseSeed(fxrand() * 99) //semi-rando noise seed each time
+
     //background(bgCol);
     bgNoise(bgCol);
     if (babelMode) { //15% chance of multiple logographies overlaid on top of each other
@@ -165,9 +177,6 @@ let sketch = function(p5) {
 
   p5.draw = function() {
 
-    let ltrPtAry = [0.3,0.5,0.7] //how many possible squares can be filled. *0.2 should be minimum; 0.3 - 0.6 seems like good range. max 0.8?. stroke length
-    let ltrPts = Math.floor(totBox * (ltrPtAry[Math.floor(fxrand() * ltrPtAry.length)])) //how many possible squares can be filled. *0.2 should be minimum; 0.3 - 0.6 seems like good range. max 0.8?. stroke length
-    
     if (babelMode) { //in babelMode reset the probability of features
       printStyle = fxrand() < 0.5
       if (printStyle) {
@@ -210,15 +219,14 @@ let sketch = function(p5) {
 
     let pos, posx1, posy1, posx2, posy2
     
-    p5.noiseSeed(fxrand() * 99) //semi-random noise seed each time
-    
     p5.translate(p5.width / 2, p5.height /2);
     p5.scale(0.9);
     p5.translate(-p5.width / 2, -p5.height / 2);
 
     let crossEdges = Math.floor(fxrand() * 2) //1 or 0: if = 1, letter drawing can cross from right/left edge and vice versa, creating disconnected shapes
-    //let crossEdges = p5.random([0,1]); //1 or 0: if = 1, letter drawing can cross from right/left edge and vice versa, creating disconnected shapes
-    let lastDir = p5.random([0,1,2,3]); //initial setting of the last direction; 0=left, 1=right, 2=up, 3=down; works with samDirWt, likelihood of direction of writing
+    
+    let lastDirAry = [0,1,2,3]
+    let lastDir = lastDirAry[Math.floor(fxrand() * lastDirAry.length)]; //initial setting of the last direction; 0=left, 1=right, 2=up, 3=down; works with samDirWt, likelihood of direction of writing
     
     let w = bgWidth / sgmt //width of a given box
     
@@ -252,7 +260,7 @@ let sketch = function(p5) {
           p5.translate(-x, -y);
 
           let locsUsed = []
-          let loc = p5.floor(p5.random(totBox)); //start with random location between 0 and total number of squares in grid minus 1
+          let loc = Math.floor(fxrand() * totBox); //start with rando location between 0 and total number of squares in grid minus 1
 
           let letterLocs = ltrPtNames(ltrPts, locsUsed, loc, ltrGridSize, totBox, lastDir, samDirWt, crossEdges)
 
@@ -271,7 +279,7 @@ let sketch = function(p5) {
               sqColor = 255
             }
           } else {
-            sqColor = colAry[p5.int(p5.random(colAry.length))]
+            sqColor = colAry[Math.floor(fxrand() * colAry.length)]
           }				
 
           for (let ll = 0; ll < letterLocs.length; ll++) {
@@ -284,7 +292,7 @@ let sketch = function(p5) {
             posx2 = x + pos[0]*(boxSize)+boxSize; //+1 bottom right corner
             posy2 = y + pos[1]*(boxSize)+boxSize; 
 
-            dotMixRan = fxrand() //random setting for dot/line variation if dotMix == 1
+            dotMixRan = fxrand() //rand setting for dot/line variation if dotMix == 1
 
             p5.push();
             if (dotMix == 0) {
@@ -307,7 +315,7 @@ let sketch = function(p5) {
             }				
             
             let hatching = 1 //ABH - always be hatching! hatching adds some fuzz around the filled square = softer edges
-            //hatching - lines drawn between random points in each square
+            //hatching - lines drawn between rand points in each square
             if (hatching) {
               let lns = 9 * (sublimate+1)
               for (let ln = 0; ln < lns; ln++) {
@@ -418,7 +426,7 @@ let sketch = function(p5) {
     let newLocLastDir
     
     if (possLocFin.length !== 0) {
-        newDir = p5.floor(p5.random(possLocFin.length))
+        newDir = Math.floor(fxrand() * possLocFin.length)
         newLocLastDir = possLocFin[newDir]
       } else {
       newLocLastDir = [oldLoc,lastDir]
@@ -437,7 +445,6 @@ let sketch = function(p5) {
       let xoff = 0;
       for (let x = 0; x < p5.width; x++) {
         let index = (x + y * p5.width) * 4;
-        // let r = random(255);
         let alpha = (p5.noise(xoff, yoff) * 60) + 195; //ensures alpha between 195 and 255. gets subtler gradient and higher alpha/lower transparency
         p5.pixels[index + 0] = bgColRgb[0];
         p5.pixels[index + 1] = bgColRgb[1];
