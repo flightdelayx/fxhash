@@ -20,15 +20,15 @@ function setup() {
 	
 function draw() {
 	
-	translate(width / 2, height/6) //, height /2);
-	scale(0.8);
-	translate(-width / 2, -height/6) //, -height / 2);
+	translate(width/2, height/6) //, height /2);
+	scale(0.5);
+	translate(-width/2, -height/6) //, -height / 2);
 	
 	let sqColor, sqColorPos, loc, x, y
 	
 	/*setup initial parameters; randomize these in final version*/
-	let ltrGridSize = 7; //variable that can be changed. recommend 5-9
-	//let ltrs = 2; //number of ltrs to draw
+	let ltrGridSize = 7; //must be width 7 for fdFont. Width 7, height 15
+	
 	let sgmtX = 7
 	let sgmtY = 9
 	
@@ -47,15 +47,15 @@ function draw() {
 
 		/*
 			//draw grid for debugging
-			for (var x = 0; x < width; x += width / ltrGridSize) {
-				for (var y = 0; y < height; y += height / ltrGridSize) {
+			for (var x1 = 0; x1 < width; x1 += width / ltrGridSize) {
+				for (var y1 = 0; y1 < height; y1 += height / ltrGridSize) {
 					stroke(1);
 					strokeWeight(1);
-					line(x, 0, x, height);
-					line(0, y, width, y);
+					line(x1, 0, x1, height);
+					line(0, y1, width, y1);
 				}
 			}
-		*/	
+		*/
 
 			//letterLocs = [1,2,3,4,7,12,19,22,23,24,25,26,28,33,35,40,43,44,45,46,47,48] //letter a
 			//letterLocs = [22,23,24,25,28,33,40,43,44,45,46,47,49,54,56,61,64,65,66,67,68,69] //letter a+21
@@ -65,8 +65,8 @@ function draw() {
 			let lb = 	[0,7,14,21,28,23,24,25,29,33,35,41,42,48,49,55,57,61,65,66,67] 
 			let lb2 = [0,7,14,21,28,23,24,25,29,33,35,41,42,48,49,55,57,61,65,66,67,56,63] 
 			let lc = 	[23,24,25,26,29,35,42,49,57,65,66,67,68] 
-			let ld = 	[6,13,20,23,24,25,27,29,33,34,35,41,42,48,49,55,57,61,65,66,67] 
-			let ld2 = [6,13,20,23,24,25,27,29,33,34,35,41,42,48,49,55,57,61,65,66,67,62,69] 
+			let ld = 	[6,13,20,23,24,25,27,29,33,34,35,41,42,48,49,55,57,61,65,66,67] //no tail
+			let ld2 = [6,13,20,23,24,25,27,29,33,34,35,41,42,48,49,55,57,61,65,66,67,62,69] //tail
 			let le = 	[23,24,25,29,33,35,41,42,43,44,45,46,47,49,57,61,65,66,67]
 			let lf = 	[4,5,10,13,17,22,23,24,25,26,31,38,45,52,59,66]
 			let lf2 = [4,5,10,13,17,24,29,30,31,32,33,38,45,52,59,66]
@@ -82,26 +82,42 @@ function draw() {
 			let ll3 =	[10,17,24,31,38,45,52,59,66] /*short l, straight*/
 			let ll4 =	[3,10,17,24,31,38,45,52,59,66] /*tall l, straight*/
 			let lm = 	[28,30,32,35,36,38,40,42,45,48,49,52,55,56,59,62,63,66,69]
-			let ln = 	[28,30,31,32,35,36,40,42,48,49,55,56,62,63,69]
+			let ln = 	[28,30,31,32,35,36,40,42,48,49,55,56,62,63,69] //tail
+			let ln2 = [30,31,32,36,40,42,48,49,55,56,62,63,69] //no tail
+			let ln3 = [21,23,24,25,28,29,33,35,36,40,42,48,49,55,56,62,63,69] //tall tail
 			let lo = 	[23,24,25,29,33,35,41,42,48,49,55,57,61,65,66,67] 
+			let lp = 	[23,24,25,29,33,35,41,42,48,49,55,56,57,61,63,65,66,67,70,77,84] //no tail
+			let lp2 = [21,23,24,25,28,29,33,35,41,42,48,49,55,56,57,61,63,65,66,67,70,77,84] //tail
+			let lq = 	[23,24,25,29,33,35,41,42,48,49,55,57,61,62,65,66,67,69,76,83,90] //no tail
+			let lq2 = [23,24,25,27,29,33,34,35,41,42,48,49,55,57,61,62,65,66,67,69,76,83,90] //tail
+			let lr = 	[23,24,25,29,33,35,42,49,56,63] //no tail
+			let lr2 = [21,23,24,25,28,29,33,35,42,49,56,63] //tail
+			let ls = 	[23,24,25,29,33,36,44,45,46,54,57,61,65,66,67] //smaller s
+			let ls2 = [9,10,11,15,19,21,27,28,36,37,38,39,40,48,49,55,57,61,65,66,67] //bigger s - looks like a capital s
+			let ls3 = [22,23,24,25,26,28,34,35,,43,44,45,46,47,55,56,62,64,65,66,67,68] //wider s
 			let lt = 	[3,10,17,22,23,24,25,26,31,38,45,52,59,61,67] /*tall t*/
 			let lt2 = [10,17,24,29,30,31,32,33,38,45,52,59,61,67] /*short t*/
+			let lu = 	[28,34,35,41,42,48,49,55,57,61,62,65,66,67,69] //tail
+			let lu2 =	[28,34,35,41,42,48,49,55,57,61,65,66,67] //no tail
+			let lv =	[28,34,35,41,42,48,50,54,58,60,66]
+			let lw = 	[28,34,35,41,42,45,48,49,52,55,57,59,61,65,67] //no tail
+			let lw2 = [28,31,34,35,38,41,42,45,48,49,52,55,57,59,61,62,65,67,69] //tail
+			let lx = 	[21,27,29,33,37,39,45,51,53,57,61,63,69]
 			let ly = 	[28,34,35,41,42,48,49,55,57,61,62,65,66,67,69,76,83,85,89,93,94,95] 
+			let lz = 	[21,22,23,24,25,26,27,33,39,45,51,57,63,64,65,66,67,68,69] 
 			//	letterLocs = [[1,2,3,4,7,12,19,22,23,24,25,26,28,33,35,40,43,44,45,46,47,48,53], [2,3,4,8,12,14,20,21,27,28,34,36,40,44,45,46]]; //letter a,o
 
 			let letterLocs = []
 			letterLocs[0] = lm
-			letterLocs[1] = ln
-			letterLocs[2] = ll4
-			letterLocs[3] = lj2
-			letterLocs[4] = ll
-			//letterLocs[4] = la2
+			letterLocs[1] = lw
+			letterLocs[2] = lw2  
+			letterLocs[3] = lx  
 			//	[[6,13,20,23,24,25,27,29,33,34,35,41,42,48,49,55,57,61,65,66,67]] //, [23,24,25,29,33,35,41,42,48,49,55,57,61,65,66,67], [6,13,20,23,24,25,27,29,33,34,35,41,42,48,49,55,57,61,65,66,67], [22,23,24,25,28,33,40,43,44,45,46,47,49,54,56,61,64,65,66,67,68,69]]; //letter a,o
 
-			//for (let lx = 0; lx < letterLocs.length; lx++) {
-			let lx = floor(map(Math.random(),0,1,0,letterLocs.length))
+			//for (let lRan = 0; lRan < letterLocs.length; lRan++) {
+			let lRan = floor(map(Math.random(),0,1,0,letterLocs.length))
 
-				ltrPts = letterLocs[lx].length
+				ltrPts = letterLocs[lRan].length
 				
 			
 				if (colAry.length == 0) {
@@ -113,7 +129,7 @@ function draw() {
 
 				for (let ll = 0; ll < ltrPts; ll++) {
 
-					loc = letterLocs[lx][ll]
+					loc = letterLocs[lRan][ll]
 
 					pos = gridLoc(loc,ltrGridSize); //get x and y of top left corner of square
 
@@ -138,7 +154,7 @@ function draw() {
 					let hatching = 1 //ABH - always be hatching! hatching adds some fuzz around the filled square = softer edges
 					//hatching - lines drawn between random points in each square
 					if (hatching) {
-						let lns = 15 * (emboss+1)
+						let lns = 13 * (emboss+1)
 						for (let ln = 0; ln < lns; ln++) {
 							let ln1 = Math.random()
 							if (ln1 < 0.33) { //line from top to bottom
